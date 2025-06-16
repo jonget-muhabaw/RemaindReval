@@ -2,6 +2,11 @@
 @theme{
     --color-primary:#014359
 }
+body{
+    @apply bg-[#e6ecf1];
+    height: 100vh;
+    margin: 0;
+}
 @theme{
     --color-secondary:#fff
 }

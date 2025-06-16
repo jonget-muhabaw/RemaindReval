@@ -1,26 +1,16 @@
-import React from "react";
 import SummaryCard from "./SummaryCard";
-import EpatTable from "./EpatTable";
+import EpatTable from "./ExpatTable";
 
 const Dashboard: React.FC = () => {
   return (
-    // Use flexbox to create a column layout
-    // h-screen makes the dashboard take the full viewport height
-    <div className="h-screen flex flex-col">
-      {/* Summary Card will naturally sit at the top */}
-      {/* No need for sticky or z-index here as it's the first flex item */}
-      <div className="p-4">
-        {" "}
-        {/* Keep padding for spacing */}
+    <div className="flex flex-col p-4 min-h-screen">
+      {/* SummaryCard Section */}
+      <div className="mb-4">
         <SummaryCard />
       </div>
 
-      {/* Scrollable Table Section */}
-      {/* flex-1 makes this div take up all remaining vertical space */}
-      {/* overflow-y-auto ensures only this section scrolls */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        {" "}
-        {/* Add padding for table content */}
+      {/* Table container: horizontal scroll only */}
+      <div className="overflow-x-auto">
         <EpatTable />
       </div>
     </div>

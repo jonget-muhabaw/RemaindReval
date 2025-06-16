@@ -40,7 +40,7 @@ const ReusableForm: React.FC<FormProps> = ({
         <div key={field.name} className="flex flex-col">
           <label
             htmlFor={field.name}
-            className="text-sm font-medium text-gray-700 mb-1"
+            className="text-sm font-medium mb-1"
           >
             {field.label}
           </label>
@@ -84,7 +84,7 @@ const ReusableForm: React.FC<FormProps> = ({
       ))}
       <button
         type="submit"
-        className="bg-primary text-white rounded-lg px-4 py-2 hover:bg-blue-600"
+        className="flex justify-end bg-primary text-white rounded-lg px-4 py-2 hover:bg-blue-600"
       >
         {buttonLabel}
       </button>

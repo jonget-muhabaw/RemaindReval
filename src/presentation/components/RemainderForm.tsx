@@ -1,4 +1,3 @@
-import React from "react";
 import ReusableForm from "./ReusableForm";
 import type { FormField } from "../../shared/types";
 
@@ -52,7 +51,7 @@ const RemainderForm = () => {
 
   return (
     <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-primary ">Create Remainder</h1>
+      <h1 className=" text-2xl font-bold mb-4 text-primary ">Create Remainder</h1>
       <ReusableForm
         fields={fields}
         onSubmit={handleSubmit}

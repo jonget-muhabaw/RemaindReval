@@ -1,4 +1,5 @@
 import React from "react";
+import { FaEdit, FaTrash, FaFileExport } from "react-icons/fa";
 
 interface RowData {
   userName: string;
@@ -9,7 +10,7 @@ interface RowData {
   daysLeft: number;
 }
 
-const EpatTable: React.FC = () => {
+const ExpatTable: React.FC = () => {
   const handleExport = (row: RowData) => {
     const csvData = `User Name,Full Name,Document Name,Expired Date,Status,Days Left\n${row.userName},${row.fullName},${row.documentName},${row.expiredDate},${row.status},${row.daysLeft}`;
     const blob = new Blob([csvData], { type: "text/csv" });
@@ -17,6 +18,16 @@ const EpatTable: React.FC = () => {
     link.href = URL.createObjectURL(blob);
     link.download = `${row.fullName}-data.csv`;
     link.click();
+  };
+
+  const handleEdit = (row: RowData) => {
+    console.log("Edit row:", row);
+    // Add your edit logic here
+  };
+
+  const handleDelete = (row: RowData) => {
+    console.log("Delete row:", row);
+    // Add your delete logic here
   };
 
   const rows: RowData[] = [
@@ -39,8 +50,8 @@ const EpatTable: React.FC = () => {
   ];
 
   return (
-    <div className="mt-6 overflow-x-auto bg-white shadow-md rounded-xl">
-      <table className="w-full text-left border-collapse table-auto">
+    <div className="mt-6 bg-white shadow-md rounded-xl overflow-x-auto">
+      <table className="min-w-[900px] w-full text-left border-collapse table-auto">
         <thead className="bg-primary">
           <tr>
             <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
@@ -66,6 +77,9 @@ const EpatTable: React.FC = () => {
             </th>
             <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
               Export
+            </th>
+            <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
+              Actions
             </th>
           </tr>
         </thead>
@@ -96,9 +110,23 @@ const EpatTable: React.FC = () => {
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
                 <button
                   onClick={() => handleExport(row)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600"
+                  className="text-blue-500 hover:text-blue-600"
                 >
-                  Export
+                  <FaFileExport size={18} />
+                </button>
+              </td>
+              <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800 flex space-x-2">
+                <button
+                  onClick={() => handleEdit(row)}
+                  className="text-green-500 hover:text-green-600"
+                >
+                  <FaEdit size={18} />
+                </button>
+                <button
+                  onClick={() => handleDelete(row)}
+                  className="text-red-500 hover:text-red-600"
+                >
+                  <FaTrash size={18} />
                 </button>
               </td>
             </tr>
@@ -109,4 +137,4 @@ const EpatTable: React.FC = () => {
   );
 };
 
-export default EpatTable;
+export default ExpatTable;
