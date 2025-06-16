@@ -1,15 +1,18 @@
+import React from "react";
+import Sidebar from "./presentation/components/SideBar";
+import Login from "./presentation/components/Login";
+import { Route, Routes } from "react-router-dom";
 
-import './App.css'
-import Login from './presentation/components/Login'
-
-function App() {
-
-
+const App: React.FC = () => {
   return (
     <>
-      <Login/>
+      {" "}
+      <Sidebar />
+      <Routes>
+        <Route path="/" element={<Login />} />
+      </Routes>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
