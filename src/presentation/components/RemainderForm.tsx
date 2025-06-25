@@ -1,57 +1,85 @@
 import ReusableForm from "./ReusableForm";
-import type { FormField } from "../../shared/types";
+import type { FormField as BaseFormField } from "../../shared/types";
+import { useCreateDocument } from "../../hooks/useDocument";
+import { useState } from "react";
+
+interface ControlledFormField extends BaseFormField {
+  value: string;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+}
 
 const RemainderForm = () => {
-  const fields: FormField[] = [
-    {
-      name: "Full Name",
-      label: "Full Name",
-      type: "text",
-      placeholder: "Enter Full Name",
-      required: true,
-    },
-    {
-      name: "Email",
-      label: "Email",
-      type: "email",
-      placeholder: "Enter Email ",
-      required: true,
-    },
+  const { mutate, isError, error } = useCreateDocument();
+
+  const [title, setTitle] = useState("");
+  const [liaisonOfficerName, setLiaisonOfficerName] = useState("");
+  const [description, setDescription] = useState("");
+  const [expirationDate, setExpirationDate] = useState("");
+
+  if (isError) return <p>Error: {error?.message}</p>;
+
+  const handleSubmit = (data: Record<string, string | number>) => {
+    mutate(
+      {
+        title: String(data.title),
+        description: data.description ? String(data.description) : undefined,
+        liaisonOfficerName: String(data.liaisonOfficerName),
+        expirationDate: String(data.expirationDate),
+      },
+      {
+        onSuccess: () => {
+          alert("Document Created successfully");
+          setTitle("");
+          setLiaisonOfficerName("");
+          setDescription("");
+          setExpirationDate("");
+        },
+      }
+    );
+  };
+  
+  const fields: ControlledFormField[] = [
     {
       name: "title",
       label: "Document Title",
       type: "text",
       placeholder: "Enter document title",
       required: true,
+      value: title,
+      onChange: (e) => setTitle(e.target.value),
+    },
+    {
+      name: "liaisonOfficerName",
+      label: "Select Officer",
+      type: "text",
+      placeholder: "Enter officer name",
+      required: true,
+      value: liaisonOfficerName,
+      onChange: (e) => setLiaisonOfficerName(e.target.value),
     },
     {
       name: "description",
-      label: "Description about a document",
+      label: "Description about the document",
       type: "textarea",
       placeholder: "Enter description",
+      value: description,
+      onChange: (e) => setDescription(e.target.value),
     },
     {
-      name: "expirateDate",
+      name: "expirationDate",
       label: "Expiration Date",
       type: "date",
       required: true,
-    },
-    {
-      name: "document type",
-      label: "Document type",
-      type: "text",
-      placeholder: "Select document type",
-      options: ["Passport", "Residence ID", "Work Permit"],
+      value: expirationDate,
+      onChange: (e) => setExpirationDate(e.target.value),
     },
   ];
 
-  const handleSubmit = (data: Record<string, string | number>) => {
-    console.log("Form Data:", data);
-  };
-
   return (
     <div className="p-4 max-w-md mx-auto">
-      <h1 className=" text-2xl font-bold mb-4 text-primary ">Create Remainder</h1>
+      <h1 className="text-2xl font-bold mb-4 text-primary">Create Remainder</h1>
       <ReusableForm
         fields={fields}
         onSubmit={handleSubmit}

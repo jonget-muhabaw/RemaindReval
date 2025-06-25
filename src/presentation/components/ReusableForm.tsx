@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import type { FormField } from "../../shared/types";
-
-
 interface FormProps {
   fields: FormField[];
   onSubmit: (data: Record<string, string | number>) => void;

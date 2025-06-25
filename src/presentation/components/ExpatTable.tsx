@@ -1,9 +1,10 @@
 import React from "react";
 import { FaEdit, FaTrash, FaFileExport } from "react-icons/fa";
+import { useDocuments } from "../../hooks/useDocument";
 
 interface RowData {
-  userName: string;
-  fullName: string;
+  officerEmail: string;
+  officerName: string;
   documentName: string;
   expiredDate: string;
   status: string;
@@ -11,43 +12,38 @@ interface RowData {
 }
 
 const ExpatTable: React.FC = () => {
+  const { data, isLoading, isError, error } = useDocuments();
+
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error: {error?.message}</p>;
+
   const handleExport = (row: RowData) => {
-    const csvData = `User Name,Full Name,Document Name,Expired Date,Status,Days Left\n${row.userName},${row.fullName},${row.documentName},${row.expiredDate},${row.status},${row.daysLeft}`;
+    const csvData = `User Name,Full Name,Document Name,Expired Date,Status,Days Left\n${row.officerEmail},${row.officerName},${row.documentName},${row.expiredDate},${row.status},${row.daysLeft}`;
     const blob = new Blob([csvData], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${row.fullName}-data.csv`;
+    link.download = `${row.officerName}-data.csv`;
     link.click();
   };
 
   const handleEdit = (row: RowData) => {
     console.log("Edit row:", row);
-    // Add your edit logic here
   };
 
   const handleDelete = (row: RowData) => {
     console.log("Delete row:", row);
-    // Add your delete logic here
   };
 
-  const rows: RowData[] = [
-    {
-      userName: "alluwa2127@gmail.com",
-      fullName: "Alex Muhabaw",
-      documentName: "Passport",
-      expiredDate: "07-12-2025",
-      status: "Active",
-      daysLeft: 35,
-    },
-    {
-      userName: "muhabaw2127@gmail.com",
-      fullName: "Sofonias Muhabaw",
-      documentName: "Work Permit",
-      expiredDate: "08-08-2025",
-      status: "Renewal Required",
-      daysLeft: 35,
-    },
-  ];
+  const rows: RowData[] = data
+    ? data.map((doc) => ({
+      officerEmail:doc.liaisonOfficer.email,
+        officerName: doc.liaisonOfficer?.name || "N/A",
+        documentName: doc.title || "Untitled",
+        expiredDate: doc.expiration_date || "N/A",
+        status: doc.status || "Unknown",
+        daysLeft: doc.days_left || 0,
+      }))
+    : [];
 
   return (
     <div className="mt-6 bg-white shadow-md rounded-xl overflow-x-auto">
@@ -58,10 +54,10 @@ const ExpatTable: React.FC = () => {
               <input type="checkbox" className="form-checkbox h-4 w-4" />
             </th>
             <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
-              User Name
+              Officer Email Address
             </th>
             <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
-              Full Name
+              Officer Name
             </th>
             <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
               Document Name
@@ -89,11 +85,12 @@ const ExpatTable: React.FC = () => {
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
                 <input type="checkbox" className="form-checkbox h-4 w-4" />
               </td>
+
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
-                {row.userName}
+                {row.officerEmail}
               </td>
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
-                {row.fullName}
+                {row.officerName}
               </td>
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
                 {row.documentName}

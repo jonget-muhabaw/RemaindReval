@@ -1,10 +1,38 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import {  useNavigate } from "react-router-dom";
+
+import { useLogin } from "../../hooks/userAuth";
+import logo from "../../assets/logo.png";
 
 const Login = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { mutate,isError, error } = useLogin();
+  const handleSubmit = (e:React.FormEvent)=>{
+      e.preventDefault();
+      mutate(
+        { username, password },
+        {
+          onSuccess: () => {
+            navigate("/dashboard");
+          },
+        }
+      );
+  }
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6">
+      {/* Company Logo */}
+      <img
+        src={logo}
+        height={300}
+        width={400}
+        alt="company logo"
+        className="mb-6"
+      />
+
       <div className="w-full max-w-md md:max-w-lg bg-white border border-gray-200 p-6 sm:p-8 rounded-lg shadow">
-        <form action="#" className="space-y-6">
+        <form action="#" onSubmit={handleSubmit} className="space-y-6">
           <h1 className="font-medium text-gray-900 text-xl sm:text-2xl md:text-3xl mt-3 text-center">
             Login to RavalRemainder
           </h1>
@@ -17,6 +45,9 @@ const Login = () => {
               id="email"
               name="email"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:primary focus:secondary block w-full p-2.5"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
             />
           </div>
           <div>
@@ -29,6 +60,8 @@ const Login = () => {
               id="password"
               placeholder="••••••••"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:primary focus:secondary block w-full p-2.5"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
@@ -47,15 +80,12 @@ const Login = () => {
               Forgot Password?
             </a>
           </div>
-          <Link
-            to="/dashboard"
-            className="block w-full text-white bg-primary hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            onClick={() => {
-              console.log("Navigating to dashboard");
-            }}
+          <button
+            type="submit"
+            className="w-full text-white bg-primary hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
           >
             Login
-          </Link>
+          </button>
 
           <div className="flex justify-center mt-6">
             <button className="flex items-center justify-center w-full bg-white border border-gray-300 text-primary font-medium rounded-lg text-sm px-5 py-2.5 shadow hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300">
