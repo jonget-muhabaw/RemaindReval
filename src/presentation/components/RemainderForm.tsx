@@ -14,9 +14,9 @@ const RemainderForm = () => {
   const { mutate, isError, error } = useCreateDocument();
 
   const [title, setTitle] = useState("");
-  const [liaisonOfficerName, setLiaisonOfficerName] = useState("");
+  const [liaison_officer_name, setLiaisonOfficerName] = useState("");
   const [description, setDescription] = useState("");
-  const [expirationDate, setExpirationDate] = useState("");
+  const [expiration_date, setExpirationDate] = useState("");
 
   if (isError) return <p>Error: {error?.message}</p>;
 
@@ -25,8 +25,8 @@ const RemainderForm = () => {
       {
         title: String(data.title),
         description: data.description ? String(data.description) : undefined,
-        liaisonOfficerName: String(data.liaisonOfficerName),
-        expirationDate: String(data.expirationDate),
+        liaison_officer_name: String(data.liaisonOfficerName),
+        expiration_date: String(data.expirationDate),
       },
       {
         onSuccess: () => {
@@ -56,7 +56,7 @@ const RemainderForm = () => {
       type: "text",
       placeholder: "Enter officer name",
       required: true,
-      value: liaisonOfficerName,
+      value: liaison_officer_name,
       onChange: (e) => setLiaisonOfficerName(e.target.value),
     },
     {
@@ -72,7 +72,7 @@ const RemainderForm = () => {
       label: "Expiration Date",
       type: "date",
       required: true,
-      value: expirationDate,
+      value: expiration_date,
       onChange: (e) => setExpirationDate(e.target.value),
     },
   ];

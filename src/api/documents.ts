@@ -19,12 +19,15 @@ interface DocumentsApiResponse {
   data: AppDocument[];
 }
 
-
+export interface DocumentStatsResponse {
+  success: boolean;
+  stats: DocumentStats;
+}
 export interface CreateDocumentRequest {
   title: string;
   description?: string;
-  expirationDate: string;
-  liaisonOfficerName: string;
+   expiration_date: string;
+   liaison_officer_name: string;
 }
 
 export interface CreateDocumentResponse {
@@ -56,9 +59,9 @@ export interface UpdateDocumentResponse {
 }
 
 export interface DocumentStats {
-  totalDocuments: number;
+  total_documents: number;
   active: number;
-  expiringSoon: number;
+  expiring_soon: number;
   expired: number;
 }
 
@@ -70,10 +73,24 @@ export interface DeleteDocumentResponse {
 /**
  * Fetch document statistics
  */
+/**
+ * Fetch document statistics
+ */
 export const getDocumentsStatics = async (): Promise<DocumentStats> => {
-  const { data } = await apiClient.get<DocumentStats>("/documents/stats");
-  return data;
+  try {
+    const { data } = await apiClient.get<DocumentStatsResponse>("/documents/stats");
+
+    if (data.success) {
+      return data.stats;
+    } else {
+      throw new Error("Failed to fetch document statistics");
+    }
+  } catch (error) {
+    console.error("Error fetching document statistics:", error);
+    throw error; // Re-throw the error to be handled by React Query
+  }
 };
+
 
 /**
  * Fetch all documents
@@ -96,7 +113,7 @@ export const createDocument = async (
   data: CreateDocumentRequest
 ): Promise<CreateDocumentResponse> => {
   const { data: response } = await apiClient.post<CreateDocumentResponse>(
-    "/documents",
+    "/documents/createDocument",
     data
   );
   return response;
