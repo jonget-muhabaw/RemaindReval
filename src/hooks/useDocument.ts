@@ -4,10 +4,15 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
+import type {
+  UpdateDocumentRequest,
+  UpdateDocumentResponse,
+} from "../api/documents";
 import {
   createDocument,
   getDocuments,
   getDocumentsStatics,
+  updateDocument,
 } from "../api/documents";
 import type {
   AppDocument,
@@ -58,3 +63,14 @@ export const useCreateDocument = (): UseMutationResult<
 /**
  * Hook to update an existing document
  */
+export const useUpdateDocument = (): UseMutationResult<
+  UpdateDocumentResponse,
+  Error,
+  { id: number; data: UpdateDocumentRequest }
+> => {
+  return useMutation<UpdateDocumentResponse, Error, { id: number; data: UpdateDocumentRequest }>(
+    {
+      mutationFn: ({ id, data }) => updateDocument(id, data),
+    }
+  );
+};

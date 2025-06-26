@@ -1,25 +1,61 @@
 import { useState } from "react";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { useLogin } from "../../hooks/userAuth";
 import logo from "../../assets/logo.png";
+import Spinner from "../../utils/Spinner";
+import { showSnackbar } from "../../utils/ShowSnackbar";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { mutate,isError, error } = useLogin();
-  const handleSubmit = (e:React.FormEvent)=>{
-      e.preventDefault();
-      mutate(
-        { username, password },
-        {
-          onSuccess: () => {
-            navigate("/dashboard");
-          },
-        }
-      );
-  }
+  const { mutate, isPending } = useLogin();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutate(
+      { username, password },
+      {
+        onSuccess: () => {
+          navigate("/dashboard");
+          showSnackbar({ message: "Login successful", icon: "success" });
+        },
+        onError: (error: any) => {
+          // Extract status code and message, adjust this according to your API error shape
+          const status = error?.response?.status || null;
+          const message =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Login failed, please try again.";
+
+          if (status === 401) {
+            showSnackbar({
+              message: "Unauthorized: Invalid username or password",
+              icon: "error",
+              position: "top-end",
+              duration: 4000,
+            });
+          } else if (status >= 500) {
+            showSnackbar({
+              message: "Server error, please try later",
+              icon: "error",
+              position: "top-end",
+              duration: 4000,
+            });
+          } else {
+            showSnackbar({
+              message,
+              icon: "warning",
+              position: "top-end",
+              duration: 4000,
+            });
+          }
+        },
+      }
+    );
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6">
       {/* Company Logo */}
@@ -84,7 +120,7 @@ const Login = () => {
             type="submit"
             className="w-full text-white bg-primary hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
           >
-            Login
+            {isPending ? <Spinner size="large" /> : "Login"}
           </button>
 
           <div className="flex justify-center mt-6">

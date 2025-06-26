@@ -42,18 +42,17 @@ export interface CreateDocumentResponse {
 }
 
 export interface UpdateDocumentRequest {
-  title?: string;
+  title: string;
   description?: string;
-  expirationDate?: string;
-  liaisonOfficerName?: string;
+  expiration_date: string;
+  liaison_officer_name: string;
 }
 
 export interface UpdateDocumentResponse {
-  id: number;
   title: string;
-  description: string;
-  expirationDate: string;
-  liaisonOfficerName: string;
+  description?: string;
+  expiration_date: string;
+  liaison_officer_name: string;
   status: string;
   updatedAt: string;
 }
@@ -73,9 +72,7 @@ export interface DeleteDocumentResponse {
 /**
  * Fetch document statistics
  */
-/**
- * Fetch document statistics
- */
+
 export const getDocumentsStatics = async (): Promise<DocumentStats> => {
   try {
     const { data } = await apiClient.get<DocumentStatsResponse>("/documents/stats");
@@ -87,7 +84,7 @@ export const getDocumentsStatics = async (): Promise<DocumentStats> => {
     }
   } catch (error) {
     console.error("Error fetching document statistics:", error);
-    throw error; // Re-throw the error to be handled by React Query
+    throw error; 
   }
 };
 

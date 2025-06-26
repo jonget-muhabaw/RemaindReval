@@ -1,6 +1,7 @@
 import React from "react";
 import { FaEdit, FaTrash, FaFileExport } from "react-icons/fa";
 import { useDocuments } from "../../hooks/useDocument";
+import { useNavigate } from "react-router-dom";
 
 interface RowData {
   officerEmail: string;
@@ -13,7 +14,7 @@ interface RowData {
 
 const ExpatTable: React.FC = () => {
   const { data, isLoading, isError, error } = useDocuments();
-
+  const navigate = useNavigate(); 
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error: {error?.message}</p>;
 
@@ -27,7 +28,8 @@ const ExpatTable: React.FC = () => {
   };
 
   const handleEdit = (row: RowData) => {
-    console.log("Edit row:", row);
+    // Navigate to UpdateDocument with necessary data as state
+    navigate(`/update-document`, { state: { document: row } });
   };
 
   const handleDelete = (row: RowData) => {
@@ -39,7 +41,7 @@ const ExpatTable: React.FC = () => {
       officerEmail:doc.liaisonOfficer.email,
         officerName: doc.liaisonOfficer?.name || "N/A",
         documentName: doc.title || "Untitled",
-        expiredDate: doc.expiration_date || "N/A",
+        expiredDate: doc.expiration_date ? doc.expiration_date.slice(0, 10) : "N/A",
         status: doc.status || "Unknown",
         daysLeft: doc.days_left || 0,
       }))

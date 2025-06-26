@@ -1,24 +1,17 @@
 import React from "react";
 import { useDocumentStats } from "../../hooks/useDocument";
-// import Spinner from "../components/Spinner"; // Optional spinner component
+import Spinner from "../../utils/Spinner";
 
 const SummaryCard: React.FC = () => {
   const { data, isLoading, isError, error } = useDocumentStats();
-console.log(`Response ${JSON.stringify(data?.total_documents)}`)
   if (isLoading)
     return (
       <div className="flex items-center justify-center">
-      <p>Loading..</p>
+        <div className="flex items-center">
+          <Spinner />
+        </div>
       </div>
     );
-
-  if (isError)
-    return (
-      <div className="text-red-500 text-center">
-        <p>Error: {error?.message || "Something went wrong!"}</p>
-      </div>
-    );
-
   const cards = [
     {
       title: "Total Expats",
@@ -36,7 +29,7 @@ console.log(`Response ${JSON.stringify(data?.total_documents)}`)
       color: "bg-green-500",
     },
     {
-      title: "Inactive",
+      title: "Expired",
       count: data?.expired ?? 0,
       color: "bg-gray-500",
     },

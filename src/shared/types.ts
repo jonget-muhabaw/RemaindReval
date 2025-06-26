@@ -1,8 +1,10 @@
+import type { OptionType } from "../presentation/components/ReusableForm";
+
 export interface FormField {
   name: string;
   label: string;
-  type: "text" | "number" | "email" | "password" | "textarea" | "date";
+  type: "text" | "textarea" | "select" | "date";
   placeholder?: string;
   required?: boolean;
-  options?: string[]; 
+  options?: Array<string | OptionType>;
 }

@@ -1,13 +1,34 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { FaBars, FaTimes, FaTachometerAlt, FaPlusCircle, FaCog } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom"; // Update: Use useNavigate for v6
+import { FiLogOut } from "react-icons/fi";
+import {
+  FaBars,
+  FaTimes,
+  FaTachometerAlt,
+  FaPlusCircle,
+  FaCog,
+} from "react-icons/fa";
 import logo from "../../assets/main-icon.png";
+import { useLogout } from "../../hooks/userAuth";
 
 const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const toggleSidebar = (): void => {
     setIsOpen(!isOpen);
+  };
+
+  const logout = useLogout();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to logout:", error);
+   
+    }
   };
 
   return (
@@ -29,11 +50,7 @@ const Sidebar: React.FC = () => {
         <div className="flex flex-col h-full">
           {/* Logo Section */}
           <div className="flex items-center justify-center h-16 border-b border-primary-light p-4">
-            <img
-              src={logo}
-              alt="Logo"
-              className="h-12 w-auto rounded-full"
-            />
+            <img src={logo} alt="Logo" className="h-12 w-auto rounded-full" />
           </div>
 
           {/* Navigation Links */}
@@ -56,6 +73,16 @@ const Sidebar: React.FC = () => {
               icon={<FaCog size={20} />}
               onClick={toggleSidebar}
             />
+            {/* Logout Link */}
+            <div
+              onClick={handleLogout}
+              className="flex items-center px-4 py-3 rounded-md transition-all hover:bg-primary hover:text-white text-gray-700 cursor-pointer"
+            >
+              <span className="mr-3">
+                <FiLogOut size={20} />
+              </span>
+              <span className="text-base font-medium">Logout</span>
+            </div>
           </nav>
         </div>
       </div>
@@ -70,7 +97,12 @@ interface SidebarLinkProps {
   onClick?: () => void;
 }
 
-const SidebarLink: React.FC<SidebarLinkProps> = ({ to, label, icon, onClick }) => (
+const SidebarLink: React.FC<SidebarLinkProps> = ({
+  to,
+  label,
+  icon,
+  onClick,
+}) => (
   <Link
     to={to}
     onClick={onClick}

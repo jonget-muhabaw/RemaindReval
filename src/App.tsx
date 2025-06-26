@@ -5,6 +5,7 @@ import Login from "./presentation/components/Login";
 import Dashboard from "./presentation/components/Dashboard";
 import Settings from "./presentation/components/Settings";
 import RemainderForm from "./presentation/components/RemainderForm";
+import UpdateDocument from "./presentation/components/updateDocument";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -32,6 +33,7 @@ const App: React.FC = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/create" element={<RemainderForm />} />
+          <Route path="/update-document" element={<UpdateDocument />} />
         </Routes>
       </div>
     </div>
