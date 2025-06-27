@@ -1,19 +1,45 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useLogin } from "../../hooks/userAuth";
 import logo from "../../assets/logo.png";
 import Spinner from "../../utils/Spinner";
 import { showSnackbar } from "../../utils/ShowSnackbar";
 
 const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{
+    username?: string;
+    password?: string;
+  }>({});
   const navigate = useNavigate();
   const { mutate, isPending } = useLogin();
 
+  const validate = (): boolean => {
+    const newErrors: { username?: string; password?: string } = {};
+
+    if (!username.trim()) {
+      newErrors.username = "Email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) {
+      newErrors.username = "Invalid email address.";
+    }
+
+    if (!password.trim()) {
+      newErrors.password = "Password is required.";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
+
     mutate(
       { username, password },
       {
@@ -22,7 +48,6 @@ const Login = () => {
           showSnackbar({ message: "Login successful", icon: "success" });
         },
         onError: (error: any) => {
-          // Extract status code and message, adjust this according to your API error shape
           const status = error?.response?.status || null;
           const message =
             error?.response?.data?.message ||
@@ -58,7 +83,6 @@ const Login = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6">
-      {/* Company Logo */}
       <img
         src={logo}
         height={300}
@@ -66,7 +90,6 @@ const Login = () => {
         alt="company logo"
         className="mb-6"
       />
-
       <div className="w-full max-w-md md:max-w-lg bg-white border border-gray-200 p-6 sm:p-8 rounded-lg shadow">
         <form action="#" onSubmit={handleSubmit} className="space-y-6">
           <h1 className="font-medium text-gray-900 text-xl sm:text-2xl md:text-3xl mt-3 text-center">
@@ -80,59 +103,53 @@ const Login = () => {
               type="email"
               id="email"
               name="email"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:primary focus:secondary block w-full p-2.5"
+              className={`bg-gray-50 border ${
+                errors.username ? "border-red-500" : "border-gray-300"
+              } text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-300 block w-full p-2.5`}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              required
             />
+            {errors.username && (
+              <p className="text-red-500 text-xs mt-1">{errors.username}</p>
+            )}
           </div>
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-900">
+          <div className="relative">
+            <label className="block text-gray-900 text-sm font-medium mb-2">
               Password
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               id="password"
               placeholder="••••••••"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:primary focus:secondary block w-full p-2.5"
+              className={`bg-gray-50 border ${
+                errors.password ? "border-red-500" : "border-gray-300"
+              } text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-300 block w-full p-2.5`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            {/* Toggle Button */}
+            <button
+              type="button"
+              className="absolute inset-y-0 right-3 flex items-center"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label="Toggle password visibility"
+            >
+              {showPassword ? (
+                <FaEyeSlash className="text-gray-500 hover:text-gray-700" />
+              ) : (
+                <FaEye className="text-gray-500 hover:text-gray-700" />
+              )}
+            </button>
           </div>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember"
-                type="checkbox"
-                className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300"
-              />
-              <label className="ml-2 text-sm font-medium text-gray-900">
-                Remember me
-              </label>
-            </div>
-            <a href="#" className="text-sm text-primary hover:underline">
-              Forgot Password?
-            </a>
-          </div>
+
           <button
             type="submit"
             className="w-full text-white bg-primary hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
           >
             {isPending ? <Spinner size="large" /> : "Login"}
           </button>
-
-          <div className="flex justify-center mt-6">
-            <button className="flex items-center justify-center w-full bg-white border border-gray-300 text-primary font-medium rounded-lg text-sm px-5 py-2.5 shadow hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300">
-              <img
-                src="https://www.svgrepo.com/show/355037/google.svg"
-                alt="Google logo"
-                className="w-5 h-5 mr-3"
-              />
-              <span>Sign in with Google</span>
-            </button>
-          </div>
         </form>
       </div>
     </div>

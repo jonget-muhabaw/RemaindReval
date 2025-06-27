@@ -16,10 +16,9 @@ const ReusableForm: React.FC<FormProps> = ({
   onSubmit,
   buttonLabel = "Submit",
 }) => {
-  // Initialize form data with empty values based on fields
   const [formData, setFormData] = useState<Record<string, string | number>>(
     fields.reduce((acc, field) => {
-      acc[field.name] = ""; // Default value for each field
+      acc[field.name] = ""; 
       return acc;
     }, {} as Record<string, string | number>)
   );
@@ -31,13 +30,13 @@ const ReusableForm: React.FC<FormProps> = ({
     >
   ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value }); // Update form data
+    setFormData({ ...formData, [name]: value }); 
   };
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData); // Pass form data to the parent component
+    onSubmit(formData); 
   };
 
   return (
@@ -49,7 +48,6 @@ const ReusableForm: React.FC<FormProps> = ({
             {field.label}
           </label>
 
-          {/* Render based on the field type */}
           {field.type === "textarea" ? (
             <textarea
               id={field.name}

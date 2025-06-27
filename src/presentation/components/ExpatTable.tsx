@@ -1,9 +1,11 @@
 import React from "react";
 import { FaEdit, FaTrash, FaFileExport } from "react-icons/fa";
 import { useDocuments } from "../../hooks/useDocument";
+import { hasPermission,getUserRole } from "../../utils/RoleManager";
 import { useNavigate } from "react-router-dom";
 
 interface RowData {
+  id: number; 
   officerEmail: string;
   officerName: string;
   documentName: string;
@@ -19,17 +21,19 @@ const ExpatTable: React.FC = () => {
   if (isError) return <p>Error: {error?.message}</p>;
 
   const handleExport = (row: RowData) => {
-    const csvData = `User Name,Full Name,Document Name,Expired Date,Status,Days Left\n${row.officerEmail},${row.officerName},${row.documentName},${row.expiredDate},${row.status},${row.daysLeft}`;
+    const csvData = `Liaison Officer Email Address,Full Name,Document Name,Expired Date,Status,Days Left\n${row.officerEmail},${row.officerName},${row.documentName},${row.expiredDate},${row.status},${row.daysLeft}`;
     const blob = new Blob([csvData], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `${row.officerName}-data.csv`;
     link.click();
   };
-
   const handleEdit = (row: RowData) => {
-    // Navigate to UpdateDocument with necessary data as state
-    navigate(`/update-document`, { state: { document: row } });
+    if (!row.id) {
+      console.error("Document ID is missing");
+      return;
+    }
+    navigate(`/update-document/${row.id}`, { state: { document: row } });
   };
 
   const handleDelete = (row: RowData) => {
@@ -38,6 +42,7 @@ const ExpatTable: React.FC = () => {
 
   const rows: RowData[] = data
     ? data.map((doc) => ({
+      id:doc.id,
       officerEmail:doc.liaisonOfficer.email,
         officerName: doc.liaisonOfficer?.name || "N/A",
         documentName: doc.title || "Untitled",
@@ -73,12 +78,16 @@ const ExpatTable: React.FC = () => {
             <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
               Days Left
             </th>
-            <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
+           {
+            hasPermission("Admin") &&
+            (<th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
               Export
-            </th>
-            <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
+            </th>)}
+          {  
+          hasPermission("Admin") &&
+          (<th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
               Actions
-            </th>
+            </th>)}
           </tr>
         </thead>
         <tbody>
@@ -107,26 +116,32 @@ const ExpatTable: React.FC = () => {
                 {row.daysLeft}
               </td>
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
-                <button
+               {
+                hasPermission("Admin") &&
+                (<button
                   onClick={() => handleExport(row)}
                   className="text-blue-500 hover:text-blue-600"
                 >
                   <FaFileExport size={18} />
-                </button>
+                </button>)}
               </td>
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800 flex space-x-2">
-                <button
+               {
+                hasPermission("Admin") &&
+               ( <button
                   onClick={() => handleEdit(row)}
                   className="text-green-500 hover:text-green-600"
                 >
                   <FaEdit size={18} />
-                </button>
-                <button
+                </button>)}
+            { 
+            hasPermission("Admin")&&
+             (  <button
                   onClick={() => handleDelete(row)}
                   className="text-red-500 hover:text-red-600"
                 >
                   <FaTrash size={18} />
-                </button>
+                </button>)}
               </td>
             </tr>
           ))}
