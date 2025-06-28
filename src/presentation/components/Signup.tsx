@@ -23,23 +23,46 @@ const Signup = () => {
   const { mutate: signupMutate, isPending: isSignupPending } = useSignup();
   const { data: roles, isLoading, isError, error } = useRoles();
 
-  const validateFields = () => {
-    const newErrors = {
-      name: name.trim() === "" ? "Full Name is." : "",
-      username: username.trim() === "" ? "Email Address is." : "",
-      password:
-        password.length < 6 ? "Password must be at least 6 characters." : "",
-      role: selectedRole === "" ? "Please select a role." : "",
-    };
+  // Validation function
+  const validateForm = () => {
+    let newErrors = { name: "", username: "", password: "", role: "" };
+    let isValid = true;
+
+    if (!name.trim()) {
+      newErrors.name = "Full Name is required.";
+      isValid = false;
+    }
+
+    if (!username.trim()) {
+      newErrors.username = "Email Address is required.";
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(username)) {
+      newErrors.username = "Email Address is invalid.";
+      isValid = false;
+    }
+
+    if (!password.trim()) {
+      newErrors.password = "Password is required.";
+      isValid = false;
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long.";
+      isValid = false;
+    }
+
+    if (!selectedRole) {
+      newErrors.role = "Please select a role.";
+      isValid = false;
+    }
+
     setErrors(newErrors);
-    return Object.values(newErrors).every((error) => error === "");
+    return isValid;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateFields()) {
-      return;
+    if (!validateForm()) {
+      return; 
     }
 
     signupMutate(
@@ -50,15 +73,18 @@ const Signup = () => {
           showSnackbar({ message: "Signup successful", icon: "success" });
         },
         onError: (error: any) => {
-          const status = error?.response?.status || null;
+          const status = error?.response?.status ?? null;
           const message =
             error?.response?.data?.message ||
             error?.message ||
             "Signup failed, please try again.";
 
           showSnackbar({
-            message: status >= 500 ? "Server error, please try later" : message,
-            icon: status >= 500 ? "error" : "warning",
+            message:
+              status !== null && status >= 500
+                ? "Server error, please try later"
+                : message,
+            icon: status !== null && status >= 500 ? "error" : "warning",
             position: "top-end",
             duration: 4000,
           });
@@ -87,7 +113,10 @@ const Signup = () => {
                 errors.name ? "border-red-500" : "border-gray-300"
               } text-gray-900 text-sm rounded-lg block w-full p-2.5`}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setErrors({ ...errors, name: "" });
+              }}
             />
             {errors.name && (
               <p className="text-red-500 text-sm mt-1">{errors.name}</p>
@@ -103,7 +132,10 @@ const Signup = () => {
                 errors.username ? "border-red-500" : "border-gray-300"
               } text-gray-900 text-sm rounded-lg block w-full p-2.5`}
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setErrors({ ...errors, username: "" });
+              }}
             />
             {errors.username && (
               <p className="text-red-500 text-sm mt-1">{errors.username}</p>
@@ -122,7 +154,10 @@ const Signup = () => {
                 errors.password ? "border-red-500" : "border-gray-300"
               } text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-300 block w-full p-2.5`}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setErrors({ ...errors, password: "" }); 
+              }}
               required
             />
             {/* Toggle Button */}
@@ -138,6 +173,9 @@ const Signup = () => {
                 <FaEye className="text-gray-500 hover:text-gray-700" />
               )}
             </button>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
           </div>
           <div>
             <label className="block text-gray-900 text-sm font-medium mb-2">
@@ -152,7 +190,10 @@ const Signup = () => {
             ) : (
               <select
                 value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
+                onChange={(e) => {
+                  setSelectedRole(e.target.value);
+                  setErrors({ ...errors, role: "" }); 
+                }}
                 className={`bg-gray-50 border ${
                   errors.role ? "border-red-500" : "border-gray-300"
                 } text-gray-900 text-sm rounded-lg block w-full p-2.5`}
@@ -174,6 +215,7 @@ const Signup = () => {
           <button
             type="submit"
             className="w-full text-white bg-primary hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+            disabled={isSignupPending} 
           >
             {isSignupPending ? <Spinner size="large" /> : "Create User"}
           </button>

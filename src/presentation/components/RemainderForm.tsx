@@ -79,7 +79,9 @@ const RemainderForm = () => {
             type="text"
             id="title"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {setTitle(e.target.value); setErrors({ ...errors, title: "" });}
+
+            }
             className={`mt-1 block w-full px-3 py-2 border rounded-lg ${
               errors.title ? "border-red-500" : "border-gray-300"
             }`}
@@ -101,7 +103,10 @@ const RemainderForm = () => {
           <select
             id="liaisonOfficer"
             value={liaisonOfficerName}
-            onChange={(e) => setLiaisonOfficerName(e.target.value)}
+            onChange={(e) => {
+              setLiaisonOfficerName(e.target.value);
+              setErrors({ ...errors, liaisonOfficerName: "" });
+            }}
             className={`mt-1 block w-full px-3 py-2 border rounded-lg ${
               errors.liaisonOfficerName ? "border-red-500" : "border-gray-300"
             }`}
@@ -129,7 +134,10 @@ const RemainderForm = () => {
           <textarea
             id="description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              setErrors({ ...errors, description: "" });
+            }}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg"
             placeholder="Enter description"
           />
@@ -147,7 +155,10 @@ const RemainderForm = () => {
             type="date"
             id="expirationDate"
             value={expirationDate}
-            onChange={(e) => setExpirationDate(e.target.value)}
+            onChange={(e) =>{ 
+              setExpirationDate(e.target.value);
+              setErrors({ ...errors, expirationDate: "" });
+            }}
             className={`mt-1 block w-full px-3 py-2 border rounded-lg ${
               errors.expirationDate ? "border-red-500" : "border-gray-300"
             }`}
