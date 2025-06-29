@@ -113,7 +113,7 @@ const Login = () => {
               <p className="text-red-500 text-xs mt-1">{errors.username}</p>
             )}
           </div>
-          <div className="relative">
+         <div className="relative">
             <label className="block text-gray-900 text-sm font-medium mb-2">
               Password
             </label>
@@ -126,13 +126,16 @@ const Login = () => {
                 errors.password ? "border-red-500" : "border-gray-300"
               } text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-300 block w-full p-2.5`}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setErrors({ ...errors, password: "" }); 
+              }}
               required
             />
             {/* Toggle Button */}
             <button
               type="button"
-              className="absolute inset-y-0 right-3 flex items-center"
+              className="absolute inset-y-0 right-3 mt-6 flex items-center"
               onClick={() => setShowPassword(!showPassword)}
               aria-label="Toggle password visibility"
             >
@@ -142,8 +145,10 @@ const Login = () => {
                 <FaEye className="text-gray-500 hover:text-gray-700" />
               )}
             </button>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
           </div>
-
           <button
             type="submit"
             className="w-full text-white bg-primary hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"

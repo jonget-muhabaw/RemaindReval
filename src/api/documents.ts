@@ -31,7 +31,7 @@ export interface CreateDocumentRequest {
 }
 
 export interface CreateDocumentResponse {
-  id: number;
+  id: string;
   title: string;
   description?: string;
   expirationDate: string;

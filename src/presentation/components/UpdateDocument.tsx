@@ -39,7 +39,7 @@ const UpdateDocument: React.FC = () => {
     if (document) {
       setTitle(document.documentName || "");
       setLiaisonOfficerName(document.officerName || "");
-      setDescription(document.status || ""); // Assuming `status` is used as description
+      setDescription(document.description || ""); // Assuming `status` is used as description
       setExpirationDate(
         document.expiredDate ? formatDate(document.expiredDate) : ""
       );
