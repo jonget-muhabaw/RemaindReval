@@ -1,11 +1,11 @@
 import React from "react";
 import { FaEdit, FaTrash, FaFileExport } from "react-icons/fa";
 import { useDocuments } from "../../hooks/useDocument";
-import { hasPermission,getUserRole } from "../../utils/RoleManager";
+import { hasPermission } from "../../utils/RoleManager";
 import { useNavigate } from "react-router-dom";
 
 interface RowData {
-  id: number; 
+  id: number;
   officerEmail: string;
   officerName: string;
   documentName: string;
@@ -16,7 +16,9 @@ interface RowData {
 
 const ExpatTable: React.FC = () => {
   const { data, isLoading, isError, error } = useDocuments();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const isAdmin = hasPermission(["Admin"]);
+
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error: {error?.message}</p>;
 
@@ -28,6 +30,7 @@ const ExpatTable: React.FC = () => {
     link.download = `${row.officerName}-data.csv`;
     link.click();
   };
+
   const handleEdit = (row: RowData) => {
     if (!row.id) {
       console.error("Document ID is missing");
@@ -42,12 +45,14 @@ const ExpatTable: React.FC = () => {
 
   const rows: RowData[] = data
     ? data.map((doc) => ({
-      id:doc.id,
-      officerEmail:doc.liaisonOfficer.email,
+        id: doc.id,
+        officerEmail: doc.liaisonOfficer.email,
         officerName: doc.liaisonOfficer?.name || "N/A",
         documentName: doc.title || "Untitled",
-        expiredDate: doc.expiration_date ? doc.expiration_date.slice(0, 10) : "N/A",
-        status: doc.status || "Unknown",
+        expiredDate: doc.expiration_date
+          ? doc.expiration_date.slice(0, 10)
+          : "N/A",
+        status: doc.description || "Unknown",
         daysLeft: doc.days_left || 0,
       }))
     : [];
@@ -78,16 +83,16 @@ const ExpatTable: React.FC = () => {
             <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
               Days Left
             </th>
-           {
-            hasPermission("Admin") &&
-            (<th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
-              Export
-            </th>)}
-          {  
-          hasPermission("Admin") &&
-          (<th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
-              Actions
-            </th>)}
+            {isAdmin && (
+              <>
+                <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
+                  Export
+                </th>
+                <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
+                  Actions
+                </th>
+              </>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -96,7 +101,6 @@ const ExpatTable: React.FC = () => {
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
                 <input type="checkbox" className="form-checkbox h-4 w-4" />
               </td>
-
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
                 {row.officerEmail}
               </td>
@@ -115,34 +119,32 @@ const ExpatTable: React.FC = () => {
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
                 {row.daysLeft}
               </td>
-              <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
-               {
-                hasPermission("Admin") &&
-                (<button
-                  onClick={() => handleExport(row)}
-                  className="text-blue-500 hover:text-blue-600"
-                >
-                  <FaFileExport size={18} />
-                </button>)}
-              </td>
-              <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800 flex space-x-2">
-               {
-                hasPermission("Admin") &&
-               ( <button
-                  onClick={() => handleEdit(row)}
-                  className="text-green-500 hover:text-green-600"
-                >
-                  <FaEdit size={18} />
-                </button>)}
-            { 
-            hasPermission("Admin")&&
-             (  <button
-                  onClick={() => handleDelete(row)}
-                  className="text-red-500 hover:text-red-600"
-                >
-                  <FaTrash size={18} />
-                </button>)}
-              </td>
+              {isAdmin && (
+                <>
+                  <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
+                    <button
+                      onClick={() => handleExport(row)}
+                      className="text-blue-500 hover:text-blue-600"
+                    >
+                      <FaFileExport size={18} />
+                    </button>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800 flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(row)}
+                      className="text-green-500 hover:text-green-600"
+                    >
+                      <FaEdit size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(row)}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <FaTrash size={18} />
+                    </button>
+                  </td>
+                </>
+              )}
             </tr>
           ))}
         </tbody>

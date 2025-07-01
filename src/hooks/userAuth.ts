@@ -6,17 +6,28 @@ export const useLogin = () => {
   return useMutation<LoginResponse, Error, LoginRequest>({
 
     mutationFn: loginUser,
-    onSuccess: (response: { token: string, role:Role }) => {
-      if (response.token) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("role", response.role.name)
-      } else {
-        throw new Error("Token is missing in the response");
+    onSuccess: (response: any) => {
+      console.log("Login response received:", response);
+      try {
+        if (response.token) {
+          localStorage.setItem("token", response.token);
+          console.log("Token saved:", response.token);
+    
+          if (response.role?.name) {
+            localStorage.setItem("role", response.role.name);
+            console.log("Role saved:", response.role.name);
+          } else {
+            console.warn("Role or role name is missing in the response:", response.role);
+          }
+        } else {
+          throw new Error("Token is missing in the response");
+        }
+      } catch (e) {
+        console.error("Error processing login response:", e);
       }
-    },
-    onError: (error: Error) => {
-      console.error("Login error:", error.message);
-    },
+    }
+    
+    
   });
 };
 export const useSignup = () => {

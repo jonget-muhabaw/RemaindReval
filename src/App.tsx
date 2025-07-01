@@ -12,7 +12,7 @@ import UpdateDocument from "./presentation/components/UpdateDocument";
 const App: React.FC = () => {
   const location = useLocation();
 
-  const hideSidebarPaths = ["/", "/signup", "/forgot"];
+  const hideSidebarPaths = ["/", "/forgot"];
 
   // Check if the current path matches one where the sidebar should be hidden
   const isSidebarHidden = hideSidebarPaths.includes(location.pathname);

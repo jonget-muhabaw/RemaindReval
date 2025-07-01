@@ -1,5 +1,5 @@
 import SummaryCard from "./SummaryCard";
-import EpatTable from "./ExpatTable";
+import ExpatTable from "./ExpatTable";
 
 const Dashboard: React.FC = () => {
   return (
@@ -9,9 +9,10 @@ const Dashboard: React.FC = () => {
         <SummaryCard />
       </div>
 
-      {/* Table container: horizontal scroll only */}
-      <div className="overflow-x-auto">
-        <EpatTable />
+      <div>
+        {" "}
+        {/* No need for overflow-x-auto here */}
+        <ExpatTable />
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ export const getUserRole = (): string | null => {
   return localStorage.getItem("role");
 };
 
-export const hasPermission = (requiredRole: string): boolean => {
+export const hasPermission = (requiredRoles: string[]): boolean => {
   const userRole = getUserRole();
-  return userRole === requiredRole;
+  return requiredRoles.includes(userRole || "");
 };

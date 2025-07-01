@@ -45,7 +45,7 @@ const Login = () => {
       {
         onSuccess: () => {
           navigate("/dashboard");
-          showSnackbar({ message: "Login successful", icon: "success" });
+          // showSnackbar({ message: "Login successful", icon: "success" });
         },
         onError: (error: any) => {
           const status = error?.response?.status || null;
