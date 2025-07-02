@@ -1,16 +1,16 @@
 import React from "react";
 import { FaEdit, FaTrash, FaFileExport } from "react-icons/fa";
-import { useDocuments } from "../../hooks/useDocument";
+import { useDocuments, useDelete } from "../../hooks/useDocument";
 import { hasPermission } from "../../utils/RoleManager";
 import { useNavigate } from "react-router-dom";
-
+import Swal from "sweetalert2";
 interface RowData {
   id: number;
   officerEmail: string;
   officerName: string;
   documentName: string;
   expiredDate: string;
-  status: string;
+  description: string;
   daysLeft: number;
 }
 
@@ -18,12 +18,72 @@ const ExpatTable: React.FC = () => {
   const { data, isLoading, isError, error } = useDocuments();
   const navigate = useNavigate();
   const isAdmin = hasPermission(["Admin"]);
-
+  const deleteMutation = useDelete();
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error: {error?.message}</p>;
+ 
 
+
+  const handleDelete = (row: RowData) => {
+    if (!row.id) return;
+
+    Swal.fire({
+      title: "Delete Document?",
+      text: `"${row.documentName}" will be deleted.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete",
+      cancelButtonText: "Cancel",
+      heightAuto: false,
+      customClass: {
+        popup: "p-2 text-sm rounded-md", // Reduce padding & text size
+        title: "text-base",
+        confirmButton: "text-sm px-3 py-1",
+        cancelButton: "text-sm px-3 py-1",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteMutation.mutate(
+          { id: row.id },
+          {
+            onSuccess: () => {
+              Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                text: "Successfully removed.",
+                timer: 1200,
+                showConfirmButton: false,
+                heightAuto: false,
+                customClass: {
+                  popup: "p-2 text-sm rounded-md",
+                  title: "text-sm",
+                },
+              });
+            },
+            onError: () => {
+              Swal.fire({
+                icon: "error",
+                title: "Error!",
+                text: "Failed to delete the document.",
+                heightAuto: false,
+                customClass: {
+                  popup: "p-2 text-sm rounded-md",
+                  title: "text-sm",
+                },
+              });
+            },
+          }
+        );
+      }
+    });
+  };
+  
+  
+  
   const handleExport = (row: RowData) => {
-    const csvData = `Liaison Officer Email Address,Full Name,Document Name,Expired Date,Status,Days Left\n${row.officerEmail},${row.officerName},${row.documentName},${row.expiredDate},${row.status},${row.daysLeft}`;
+    const csvData = `Liaison Officer Email Address,Full Name,Document Name,Expired Date,Status,Days Left\n${row.officerEmail},${row.officerName},${row.documentName},${row.expiredDate},${row.description},${row.daysLeft}`;
     const blob = new Blob([csvData], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -39,9 +99,7 @@ const ExpatTable: React.FC = () => {
     navigate(`/update-document/${row.id}`, { state: { document: row } });
   };
 
-  const handleDelete = (row: RowData) => {
-    console.log("Delete row:", row);
-  };
+
 
   const rows: RowData[] = data
     ? data.map((doc) => ({
@@ -52,7 +110,7 @@ const ExpatTable: React.FC = () => {
         expiredDate: doc.expiration_date
           ? doc.expiration_date.slice(0, 10)
           : "N/A",
-        status: doc.description || "Unknown",
+        description: doc.description || "Unknown",
         daysLeft: doc.days_left || 0,
       }))
     : [];
@@ -78,7 +136,7 @@ const ExpatTable: React.FC = () => {
               Expired Date
             </th>
             <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
-              Status
+             Description
             </th>
             <th className="px-4 py-2 text-xs md:text-sm font-medium text-white uppercase tracking-wider">
               Days Left
@@ -114,7 +172,7 @@ const ExpatTable: React.FC = () => {
                 {row.expiredDate}
               </td>
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
-                {row.status}
+                {row.description}
               </td>
               <td className="px-4 py-2 whitespace-nowrap text-xs md:text-sm text-gray-800">
                 {row.daysLeft}

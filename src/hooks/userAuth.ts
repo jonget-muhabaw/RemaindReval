@@ -1,23 +1,24 @@
-import { useMutation, useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { getRoles, loginUser, signupUser, UserRole } from "../api/auth";
-import type { LoginRequest, LoginResponse, Role, RoleRequest, SignupRequest, SignupResponse } from "../api/auth";
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
+import { deleteUser, getLoggedinUser, getRoles, getUsers, loginUser, signupUser, updateUser, UserRole } from "../api/auth";
+import type { DeleteUserResponse, LoggedinUser, LoginRequest, LoginResponse, Role, RoleRequest, SignupRequest, SignupResponse, UpdateUserRequest, UpdateUserResponse, Users } from "../api/auth";
 
 export const useLogin = () => {
   return useMutation<LoginResponse, Error, LoginRequest>({
 
     mutationFn: loginUser,
-    onSuccess: (response: any) => {
+    onSuccess: (response: LoginResponse) => {
       console.log("Login response received:", response);
       try {
         if (response.token) {
           localStorage.setItem("token", response.token);
           console.log("Token saved:", response.token);
     
-          if (response.role?.name) {
-            localStorage.setItem("role", response.role.name);
-            console.log("Role saved:", response.role.name);
+          const roleName = response.user?.role?.name;
+          if (roleName) {
+            localStorage.setItem("role", roleName);
+            console.log("Role saved:", roleName);
           } else {
-            console.warn("Role or role name is missing in the response:", response.role);
+            console.warn("Role or role name is missing in the response:", response.user?.role);
           }
         } else {
           throw new Error("Token is missing in the response");
@@ -26,6 +27,7 @@ export const useLogin = () => {
         console.error("Error processing login response:", e);
       }
     }
+    
     
     
   });
@@ -52,6 +54,53 @@ export const useRole = () => {
     },
   });
 };
+/**
+ * Fetch loggedin user
+ */
+export const useLoggedinUser = (): UseQueryResult<LoggedinUser, Error> => {
+  return useQuery<LoggedinUser, Error>({
+    queryKey: ["roles"],
+    queryFn: getLoggedinUser,
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 60 * 1000,
+    retry: 2,
+  });
+};
+/**
+ * Fetch all Users
+ */
+export const useUsers = (): UseQueryResult<Users, Error> => {
+  return useQuery<Users, Error>({
+    queryKey: ["users"],
+    queryFn: getUsers,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+};
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    UpdateUserResponse,
+    Error,
+    { id: string; data: UpdateUserRequest }
+  >({
+    mutationFn: ({ id, data }) => updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] }); // Invalidate users query to refetch data after update
+    },
+  });
+};
+
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation<DeleteUserResponse, Error, string>({
+    mutationFn: (id: string) => deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] }); // Invalidate users query to refetch data after delete
+    },
+  });
+};
+
 /**
  * Fetch all Roles
  */

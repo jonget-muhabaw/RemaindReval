@@ -1,23 +1,22 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import { FiLogOut } from "react-icons/fi";
-import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
-import { getUserRole, hasPermission } from "../../utils/RoleManager"
+import { FaUsers} from "react-icons/fa";
+import {  hasPermission } from "../../utils/RoleManager"
 import {
   FaBars,
   FaTimes,
   FaTachometerAlt,
   FaPlusCircle,
-  FaCog,
+
 } from "react-icons/fa";
 import logo from "../../assets/main-icon.png";
 import { useLogout } from "../../hooks/userAuth";
 
 const Sidebar: React.FC = () => {
-  const userRole = getUserRole();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const navigate = useNavigate();
-
+  const isAdmin = hasPermission(["Admin"]);
   const toggleSidebar = (): void => {
     setIsOpen(!isOpen);
   };
@@ -64,7 +63,7 @@ const Sidebar: React.FC = () => {
               icon={<FaTachometerAlt size={20} />}
               onClick={toggleSidebar}
             />
-            {hasPermission("Admin") && (
+            {isAdmin && (
               <SidebarLink
                 to="/create"
                 label="Create New Document"
@@ -72,20 +71,15 @@ const Sidebar: React.FC = () => {
                 onClick={toggleSidebar}
               />
             )}
-            {hasPermission("Admin") && (
+            {isAdmin && (
               <SidebarLink
-                to="/signup"
-                label="Create User"
-                icon={<FaUser size={20} />}
+                to="/users"
+                label="Users"
+                icon={<FaUsers size={20} />}
                 onClick={toggleSidebar}
               />
             )}
-            {/* <SidebarLink
-              to="/settings"
-              label="Settings"
-              icon={<FaCog size={20} />}
-              onClick={toggleSidebar}
-            /> */}
+            
 
             {/* Logout Link */}
             <div

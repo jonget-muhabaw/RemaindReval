@@ -56,7 +56,7 @@ const Card: React.FC<{ title: string; count: number; color: string }> = ({
 }) => (
   <div
     className={`mt-10 flex flex-col items-start justify-between p-4 rounded-lg shadow-md text-white ${color}`}
-    style={{ height: "150px", width: "100%" }}
+    style={{ height: "80px", width: "100%" }}
     aria-label={`${title}: ${count}`}
   >
     <h3 className="text-lg font-semibold">{title}</h3>

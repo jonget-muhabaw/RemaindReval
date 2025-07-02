@@ -1,16 +1,18 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSignup, useRoles } from "../../hooks/userAuth";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom"; 
+import { useUsers, useRoles, useUpdateUser } from "../../hooks/userAuth";
 import CompanyLogo from "../../assets/logo.png";
 import Spinner from "../../utils/Spinner";
-import { showSnackbar } from "../../utils/ShowSnackbar";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { showSnackbar } from "../../utils/ShowSnackbar"; 
+import type { UpdateUserRequest } from "../../api/auth"; 
 
-const Signup = () => {
-  const [showPassword, setShowPassword] = useState(false);
+const EditUser = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+
   const [selectedRole, setSelectedRole] = useState("");
   const [errors, setErrors] = useState({
     name: "",
@@ -19,11 +21,38 @@ const Signup = () => {
     role: "",
   });
 
-  const navigate = useNavigate();
-  const { mutate: signupMutate, isPending: isSignupPending } = useSignup();
-  const { data: roles=[], isLoading, isError, error } = useRoles();
+  // Fetch all users to find the current user's data
+  const {
+    data: usersData,
+    isLoading: isUsersLoading,
+    isError: isUsersError,
+    error: usersError,
+  } = useUsers();
 
-  // Validation function
+  const {
+    data: roles = [],
+    isLoading: isRolesLoading,
+    isError: isRolesError,
+    error: rolesError,
+  } = useRoles();
+  const { mutate: updateUserMutate, isPending: isUpdatePending } =
+    useUpdateUser();
+
+  useEffect(() => {
+    if (id && usersData && roles.length > 0) {
+      const currentUser = usersData.data.find((user) => user.id === id);
+      if (currentUser) {
+        setName(currentUser.name);
+        setUsername(currentUser.username);
+        setSelectedRole(currentUser.role?.name || "");
+      } else {
+        showSnackbar({ message: "User not found!", icon: "error" });
+        navigate("/users");
+      }
+    }
+  }, [id, usersData, roles, navigate]);
+
+  // Validation function for update
   const validateForm = () => {
     let newErrors = { name: "", username: "", password: "", role: "" };
     let isValid = true;
@@ -41,13 +70,6 @@ const Signup = () => {
       isValid = false;
     }
 
-    if (!password.trim()) {
-      newErrors.password = "Password is required.";
-      isValid = false;
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters long.";
-      isValid = false;
-    }
 
     if (!selectedRole) {
       newErrors.role = "Please select a role.";
@@ -62,22 +84,38 @@ const Signup = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      return; 
+      return;
     }
 
-    signupMutate(
-      { name, username, password, roleName: selectedRole },
+    if (!id) {
+      showSnackbar({ message: "User ID not found for update.", icon: "error" });
+      return;
+    }
+
+    const updateData: UpdateUserRequest = {
+      name,
+      username,
+      roleName: selectedRole,
+    };
+
+   
+
+    updateUserMutate(
+      { id, data: updateData }, 
       {
         onSuccess: () => {
           navigate("/users");
-          showSnackbar({ message: "Signup successful", icon: "success" });
+          showSnackbar({
+            message: "User updated successfully!",
+            icon: "success",
+          });
         },
         onError: (error: any) => {
           const status = error?.response?.status ?? null;
           const message =
             error?.response?.data?.message ||
             error?.message ||
-            "Signup failed, please try again.";
+            "User update failed, please try again.";
 
           showSnackbar({
             message:
@@ -93,6 +131,22 @@ const Signup = () => {
     );
   };
 
+  if (isUsersLoading || isRolesLoading) {
+    return (
+      <div className="p-4 flex justify-center items-center min-h-screen">
+        <Spinner size="large" />
+      </div>
+    );
+  }
+
+  if (isUsersError || isRolesError) {
+    return (
+      <div className="p-4 text-red-500 text-center min-h-screen flex items-center justify-center">
+        Error loading data: {usersError?.message || rolesError?.message}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6">
       <div className="w-full max-w-md md:max-w-lg bg-white border border-gray-200 p-6 sm:p-8 rounded-lg shadow">
@@ -101,7 +155,7 @@ const Signup = () => {
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <h1 className="font-medium text-primary text-xl sm:text-2xl md:text-3xl mt-3 text-center">
-            Create User
+            Edit User
           </h1>
           <div>
             <label className="block text-gray-900 text-sm font-medium mb-2">
@@ -141,73 +195,30 @@ const Signup = () => {
               <p className="text-red-500 text-sm mt-1">{errors.username}</p>
             )}
           </div>
-          <div className="relative">
-            <label className="block text-gray-900 text-sm font-medium mb-2">
-              Password
-            </label>
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              id="password"
-              placeholder="••••••••"
-              className={`bg-gray-50 border ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              } text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-300 block w-full p-2.5`}
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setErrors({ ...errors, password: "" }); 
-              }}
-              required
-            />
-            {/* Toggle Button */}
-            <button
-              type="button"
-              className="absolute inset-y-0 right-3 mt-6 flex items-center"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label="Toggle password visibility"
-            >
-              {showPassword ? (
-                <FaEyeSlash className="text-gray-500 hover:text-gray-700" />
-              ) : (
-                <FaEye className="text-gray-500 hover:text-gray-700" />
-              )}
-            </button>
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-            )}
-          </div>
+       
           <div>
             <label className="block text-gray-900 text-sm font-medium mb-2">
               Role
             </label>
-            {isLoading ? (
-              <Spinner size="small" />
-            ) : isError ? (
-              <div className="text-red-500 text-sm">
-                Failed to load roles: {error.message}
-              </div>
-            ) : (
-              <select
-                value={selectedRole}
-                onChange={(e) => {
-                  setSelectedRole(e.target.value);
-                  setErrors({ ...errors, role: "" }); 
-                }}
-                className={`bg-gray-50 border ${
-                  errors.role ? "border-red-500" : "border-gray-300"
-                } text-gray-900 text-sm rounded-lg block w-full p-2.5`}
-              >
-                <option value="" disabled>
-                  Select a role
+            <select
+              value={selectedRole}
+              onChange={(e) => {
+                setSelectedRole(e.target.value);
+                setErrors({ ...errors, role: "" });
+              }}
+              className={`bg-gray-50 border ${
+                errors.role ? "border-red-500" : "border-gray-300"
+              } text-gray-900 text-sm rounded-lg block w-full p-2.5`}
+            >
+              <option value="" disabled>
+                Select a role
+              </option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.name}>
+                  {role.name}
                 </option>
-                {roles.map((role) => (
-                  <option key={role.id} value={role.name}>
-                    {role.name}
-                  </option>
-                ))}
-              </select>
-            )}
+              ))}
+            </select>
             {errors.role && (
               <p className="text-red-500 text-sm mt-1">{errors.role}</p>
             )}
@@ -215,9 +226,16 @@ const Signup = () => {
           <button
             type="submit"
             className="w-full text-white bg-primary hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            disabled={isSignupPending} 
+            disabled={isUpdatePending}
           >
-            {isSignupPending ? <Spinner size="large" /> : "Create User"}
+            {isUpdatePending ? <Spinner size="large" /> : "Update User"}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/users")}
+            className="w-full text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-2"
+          >
+            Cancel
           </button>
         </form>
       </div>
@@ -225,4 +243,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default EditUser;

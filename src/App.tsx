@@ -5,9 +5,10 @@ import Login from "./presentation/components/Login";
 import Dashboard from "./presentation/components/Dashboard";
 import Settings from "./presentation/components/Settings";
 import RemainderForm from "./presentation/components/RemainderForm";
-
 import Signup from "./presentation/components/Signup";
 import UpdateDocument from "./presentation/components/UpdateDocument";
+import Users from "./presentation/components/Users";
+import EditUser from "./presentation/components/UpdateUser";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -30,12 +31,14 @@ const App: React.FC = () => {
       >
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/users" element={<Users />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/create" element={<RemainderForm />} />
           <Route path="/update-document/:id" element={<UpdateDocument />} />
+          <Route path="/update-user/:id" element={<EditUser />} />
         </Routes>
       </div>
     </div>
